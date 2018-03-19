@@ -376,6 +376,12 @@ func UpgradeDatabaseToVersion49(sqlStore SqlStore) {
 	//TODO: Uncomment the following condition when version 4.9.0 is released
 	//if shouldPerformUpgrade(sqlStore, VERSION_4_8_0, VERSION_4_9_0) {
 	sqlStore.CreateColumnIfNotExists("Teams", "LastTeamIconUpdate", "bigint", "bigint", "0")
+	if sqlStore.DriverName() == model.DATABASE_DRIVER_POSTGRES {
+		// We would never want to unilaterally migrate VARCHAR(4000) to text on a
+		// production MySQL database, but as these use the same underlying types on
+		// Postgres, all we're doing is relaxing the constraint here.
+		sqlStore.AlterColumnTypeIfExists("Posts", "Message", "text", "text")
+	}
 	//	saveSchemaVersion(sqlStore, VERSION_4_9_0)
 	//}
 }
