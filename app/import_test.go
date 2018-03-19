@@ -643,12 +643,13 @@ func TestImportValidateReactionImportData(t *testing.T) {
 func TestImportValidateReplyImportData(t *testing.T) {
 	// Test with minimum required valid properties.
 	parentCreateAt := model.GetMillis() - 100
+	maxPostSize := 10000
 	data := ReplyImportData{
 		User:     ptrStr("username"),
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err != nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err != nil {
 		t.Fatal("Validation failed but should have been valid.")
 	}
 
@@ -657,7 +658,7 @@ func TestImportValidateReplyImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -665,7 +666,7 @@ func TestImportValidateReplyImportData(t *testing.T) {
 		User:     ptrStr("username"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -673,17 +674,17 @@ func TestImportValidateReplyImportData(t *testing.T) {
 		User:    ptrStr("username"),
 		Message: ptrStr("message"),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
 	// Test with invalid message.
 	data = ReplyImportData{
 		User:     ptrStr("username"),
-		Message:  ptrStr(strings.Repeat("1234567890", 500)),
+		Message:  ptrStr(strings.Repeat("0", maxPostSize+1)),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to too long message.")
 	}
 
@@ -693,7 +694,7 @@ func TestImportValidateReplyImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(0),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to 0 create-at value.")
 	}
 
@@ -702,12 +703,13 @@ func TestImportValidateReplyImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(parentCreateAt - 100),
 	}
-	if err := validateReplyImportData(&data, parentCreateAt); err == nil {
+	if err := validateReplyImportData(&data, parentCreateAt, maxPostSize); err == nil {
 		t.Fatal("Should have failed due parent with newer create-at value.")
 	}
 }
 
 func TestImportValidatePostImportData(t *testing.T) {
+	maxPostSize := 10000
 
 	// Test with minimum required valid properties.
 	data := PostImportData{
@@ -717,7 +719,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err != nil {
+	if err := validatePostImportData(&data, maxPostSize); err != nil {
 		t.Fatal("Validation failed but should have been valid.")
 	}
 
@@ -728,7 +730,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -738,7 +740,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -748,7 +750,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -758,7 +760,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		User:     ptrStr("username"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -768,7 +770,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		User:    ptrStr("username"),
 		Message: ptrStr("message"),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -777,10 +779,10 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Team:     ptrStr("teamname"),
 		Channel:  ptrStr("channelname"),
 		User:     ptrStr("username"),
-		Message:  ptrStr(strings.Repeat("1234567890", 500)),
+		Message:  ptrStr(strings.Repeat("0", maxPostSize+1)),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to too long message.")
 	}
 
@@ -792,7 +794,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(0),
 	}
-	if err := validatePostImportData(&data); err == nil {
+	if err := validatePostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to 0 create-at value.")
 	}
 
@@ -816,7 +818,7 @@ func TestImportValidatePostImportData(t *testing.T) {
 		Reactions: &reactions,
 		Replies:   &replies,
 	}
-	if err := validatePostImportData(&data); err != nil {
+	if err := validatePostImportData(&data, maxPostSize); err != nil {
 		t.Fatal("Should have succeeded.")
 	}
 }
@@ -932,6 +934,7 @@ func TestImportValidateDirectChannelImportData(t *testing.T) {
 }
 
 func TestImportValidateDirectPostImportData(t *testing.T) {
+	maxPostSize := 10000
 
 	// Test with minimum required valid properties.
 	data := DirectPostImportData{
@@ -943,7 +946,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err != nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err != nil {
 		t.Fatal("Validation failed but should have been valid.")
 	}
 
@@ -953,7 +956,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -965,7 +968,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -977,7 +980,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		User:     ptrStr("username"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -989,7 +992,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		User:    ptrStr("username"),
 		Message: ptrStr("message"),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to missing required property.")
 	}
 
@@ -1000,7 +1003,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:        ptrStr("message"),
 		CreateAt:       ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to unsuitable number of members.")
 	}
 
@@ -1012,7 +1015,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to unsuitable number of members.")
 	}
 
@@ -1033,7 +1036,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to unsuitable number of members.")
 	}
 
@@ -1048,7 +1051,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err != nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err != nil {
 		t.Fatal("Validation failed but should have been valid.")
 	}
 
@@ -1059,10 +1062,10 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 			model.NewId(),
 		},
 		User:     ptrStr("username"),
-		Message:  ptrStr(strings.Repeat("1234567890", 500)),
+		Message:  ptrStr(strings.Repeat("0", maxPostSize+1)),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to too long message.")
 	}
 
@@ -1076,7 +1079,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(0),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Should have failed due to 0 create-at value.")
 	}
 
@@ -1096,7 +1099,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err == nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err == nil {
 		t.Fatal("Validation should have failed due to non-member flagged.")
 	}
 
@@ -1114,7 +1117,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Message:  ptrStr("message"),
 		CreateAt: ptrInt64(model.GetMillis()),
 	}
-	if err := validateDirectPostImportData(&data); err != nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1145,7 +1148,7 @@ func TestImportValidateDirectPostImportData(t *testing.T) {
 		Replies:   &replies,
 	}
 
-	if err := validateDirectPostImportData(&data); err != nil {
+	if err := validateDirectPostImportData(&data, maxPostSize); err != nil {
 		t.Fatal(err)
 	}
 }
