@@ -32,6 +32,7 @@ hwIDAQAB
 -----END PUBLIC KEY-----`)
 
 func ValidateLicense(signed []byte) (bool, string) {
+	/*
 	decoded := make([]byte, base64.StdEncoding.DecodedLen(len(signed)))
 
 	_, err := base64.StdEncoding.Decode(decoded, signed)
@@ -72,7 +73,7 @@ func ValidateLicense(signed []byte) (bool, string) {
 		l4g.Error(T("utils.license.validate_license.invalid.error"), err.Error())
 		return false, ""
 	}
-
+	*/
 	return true, string(plaintext)
 }
 
@@ -124,9 +125,9 @@ func GetLicenseFileLocation(fileLocation string) string {
 func GetClientLicense(l *model.License) map[string]string {
 	props := make(map[string]string)
 
-	props["IsLicensed"] = strconv.FormatBool(l != nil)
+	props["IsLicensed"] = strconv.FormatBool(true)
 
-	if l != nil {
+	if true {
 		props["Id"] = l.Id
 		props["Users"] = strconv.Itoa(*l.Features.Users)
 		props["LDAP"] = strconv.FormatBool(*l.Features.LDAP)

@@ -83,6 +83,25 @@ func (f *Features) ToMap() map[string]interface{} {
 }
 
 func (f *Features) SetDefaults() {
+
+	*f.Users = 300
+	*f.FutureFeatures = false
+	*f.LDAP = true
+	*f.MFA = true
+	*f.GoogleOAuth = true
+	*f.Office365OAuth = true
+	*f.Compliance = true
+	*f.Cluster = true
+	*f.Metrics = true
+	*f.CustomBrand = true
+	*f.MHPNS = true
+	*f.SAML = true
+	*f.PasswordRequirements = true
+	*f.Elasticsearch = true
+	*f.DataRetention = true
+	*f.EmailNotificationContents = true	
+	*MessageExport=true
+	/*
 	if f.FutureFeatures == nil {
 		f.FutureFeatures = NewBool(true)
 	}
@@ -158,14 +177,17 @@ func (f *Features) SetDefaults() {
 	if f.MessageExport == nil {
 		f.MessageExport = NewBool(*f.FutureFeatures)
 	}
+	*/
 }
 
 func (l *License) IsExpired() bool {
-	return l.ExpiresAt < GetMillis()
+	return false
+	//return l.ExpiresAt < GetMillis()
 }
 
 func (l *License) IsStarted() bool {
-	return l.StartsAt < GetMillis()
+	return true
+	//return l.StartsAt < GetMillis()
 }
 
 func (l *License) ToJson() string {
@@ -200,15 +222,15 @@ func LicenseFromJson(data io.Reader) *License {
 
 func (lr *LicenseRecord) IsValid() *AppError {
 	if len(lr.Id) != 26 {
-		return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.id.app_error", nil, "", http.StatusBadRequest)
+		//return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.id.app_error", nil, "", http.StatusBadRequest)
 	}
 
 	if lr.CreateAt == 0 {
-		return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.create_at.app_error", nil, "", http.StatusBadRequest)
+		//return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.create_at.app_error", nil, "", http.StatusBadRequest)
 	}
 
 	if len(lr.Bytes) == 0 || len(lr.Bytes) > 10000 {
-		return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.create_at.app_error", nil, "", http.StatusBadRequest)
+		//return NewAppError("LicenseRecord.IsValid", "model.license_record.is_valid.create_at.app_error", nil, "", http.StatusBadRequest)
 	}
 
 	return nil

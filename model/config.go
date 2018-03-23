@@ -29,7 +29,7 @@ const (
 	MINIO_BUCKET     = "mattermost-test"
 
 	PASSWORD_MAXIMUM_LENGTH = 64
-	PASSWORD_MINIMUM_LENGTH = 5
+	PASSWORD_MINIMUM_LENGTH = 4
 
 	SERVICE_GITLAB    = "gitlab"
 	SERVICE_GOOGLE    = "google"
